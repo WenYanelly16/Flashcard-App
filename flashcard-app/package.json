@@ -1,0 +1,22 @@
+{
+  "name": "flashcard-app",
+  "version": "1.0.0",
+  "description": "Flashcard App",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Wendy Alfaro",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "pg": "^8.15.6"
+  }
+}
