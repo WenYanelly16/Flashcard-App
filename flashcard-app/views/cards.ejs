@@ -3,21 +3,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Flashcard App</title>
-    <link rel="stylesheet" href="../public/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Flashcards</title>
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Flashcards</h1>
-        <div id="card-container"></div>
 
-        <form id="add-card-form">
-            <input type="text" id="question" placeholder="Question" required>
-            <input type="text" id="answer" placeholder="Answer" required>
-            <button type="submit">Add Card</button>
-        </form>
+  <header>
+    <h1>Flashcard App</h1>
+    <p>Click the card to flip 👆</p>
+  </header>
+
+  <main>
+    <div class="container">
+      <% const card = flashcards[currentIndex]; %>
+      <div class="card" onclick="this.classList.toggle('flip')">
+        <div class="inner-card">
+          <div class="front"><%= card.question %></div>
+          <div class="back"><%= card.answer %></div>
+        </div>
+      </div>
     </div>
 
-    
+    <div class="controls-container">
+      <div class="navigation">
+        <a
+          href="/?index=<%= currentIndex > 0 ? currentIndex - 1 : 0 %>"
+          class="circle-btn"
+        >⬅️</a>
+        <span id="cardCounter">
+          <%= currentIndex + 1 %> / <%= flashcards.length %>
+        </span>
+        <a
+          href="/?index=<%= currentIndex < flashcards.length - 1 ? currentIndex + 1 : currentIndex %>"
+          class="circle-btn"
+        >➡️</a>
+      </div>
+
+      <div class="actions">
+        <a
+          href="/edit-card/<%= card.id %>"
+          class="action-btn"
+        >🛠️ Edit</a>
+        <form
+          action="/delete-card/<%= card.id %>"
+          method="POST"
+          onsubmit="return confirm('Delete this card?')"
+        >
+          <button type="submit" class="action-btn delete">
+            🗑️ Delete
+          </button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+</body>
 </html>
+
+
+
+

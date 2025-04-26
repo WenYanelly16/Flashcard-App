@@ -5,7 +5,7 @@ import { getCards, getCard, addCard, editCard, removeCard } from '../controllers
 
 const router = express.Router();
 
-router.get('/cards', getCards);
+router.get('/', getCards);
 router.get('/cards/:id', getCard);
 router.post('/cards', addCard);
 router.put('/cards/:id', editCard);

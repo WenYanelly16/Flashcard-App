@@ -1,39 +1,43 @@
 //Filename: app.js
-import express from "express";
-import methodOverride from 'method-override';
+import express from 'express';
+import bodyParser from 'body-parser';
+import flashcardRoutes from './routes/flashcardRoutes.js';
+import { getAllCards, createCard } from './models/cardModel.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-import path from "path";
 const app = express();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-app.use(methodOverride('_method'));
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
+app.use('/api', flashcardRoutes);
 
-import flashcardRoutes from "./routes/flashcardRoutes.js";
-
-
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(process.cwd(), "public")));
-app.set("view engine", "ejs");
-app.set("views", path.join(process.cwd(), "views"));
-
-const loggingMiddleware = (req, res, next) => {
-    const timestamp = new Date().toISOString();
-    console.log(`[${timestamp}] ${req.method} ${req.url}`);
-    next();
-  };
-
-
-app.use(loggingMiddleware);
-
-
-app.use("/", flashcardRoutes);
-
-//Handling Error
-app.use((req, res) => {
-  res.status(404).send("404 Not Found.\n");
+// ✅ Route to render EJS page and pass flashcards
+app.get('/', async (req, res) => {
+  try {
+    const flashcards = await getAllCards();
+    res.render('cards', { flashcards }); // <-- pass the variable here
+  } catch (err) {
+    res.status(500).send('Failed to load flashcards');
+  }
 });
 
-const PORT = 2022;
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}/`);
+// ✅ Form submit to add new flashcard
+app.post('/add-card', async (req, res) => {
+  const { question, answer } = req.body;
+  try {
+    await createCard(question, answer);
+    res.redirect('/');
+  } catch (err) {
+    res.status(500).send('Failed to add flashcard');
+  }
+});
+
+app.listen(3000, () => {
+  console.log('Server running on http://localhost:3000');
 });

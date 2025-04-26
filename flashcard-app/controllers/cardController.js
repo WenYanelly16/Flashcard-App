@@ -4,12 +4,21 @@ import { getAllCards, getCardById, createCard, updateCard, deleteCard } from '..
 
 export const getCards = async (req, res) => {
     try {
-        const cards = await getAllCards();
-        res.json(cards);
+      const cards = await getAllCards();
+      const currentIndex = req.query.index ? parseInt(req.query.index) : 0;
+  
+      // Ensure the index is within bounds
+      const card = cards[currentIndex];
+  
+      // Pass the flashcards and currentIndex to the view
+      res.render('cards', {
+        flashcards: cards,
+        currentIndex: currentIndex,
+      });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error.message });
     }
-};
+  };
 
 export const getCard = async (req, res) => {
     try {
