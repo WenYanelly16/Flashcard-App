@@ -4,64 +4,104 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Flashcards</title>
-  <link rel="stylesheet" href="/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flashcard App</title>
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-
   <header>
-    <h1>Flashcard App</h1>
-    <p>Click the card to flip 👆</p>
+    <h1>📝Flashcard App📝</h1>
   </header>
 
   <main>
     <div class="container">
-      <% const card = flashcards[currentIndex]; %>
-      <div class="card" onclick="this.classList.toggle('flip')">
-        <div class="inner-card">
-          <div class="front"><%= card.question %></div>
-          <div class="back"><%= card.answer %></div>
-        </div>
-      </div>
-    </div>
+      <% const index = typeof currentIndex !== 'undefined' ? currentIndex : 0; %>
+      <% const card = flashcards && flashcards.length > 0 ? flashcards[index] : null; %>
 
-    <div class="controls-container">
-      <div class="navigation">
-        <a
-          href="/?index=<%= currentIndex > 0 ? currentIndex - 1 : 0 %>"
-          class="circle-btn"
-        >⬅️</a>
-        <span id="cardCounter">
-          <%= currentIndex + 1 %> / <%= flashcards.length %>
-        </span>
-        <a
-          href="/?index=<%= currentIndex < flashcards.length - 1 ? currentIndex + 1 : currentIndex %>"
-          class="circle-btn"
-        >➡️</a>
-      </div>
-
-      <div class="actions">
-        <a
-          href="/edit-card/<%= card.id %>"
-          class="action-btn"
-        >🛠️ Edit</a>
-        <form
-          action="/delete-card/<%= card.id %>"
-          method="POST"
-          onsubmit="return confirm('Delete this card?')"
-        >
-          <button type="submit" class="action-btn delete">
-            🗑️ Delete
-          </button>
+      <% if (mode === 'add') { %>
+        <h2>Add New Flashcard</h2>
+        <% if (error) { %>
+          <div class="error-message"><%= error %></div>
+        <% } %>
+        <form action="/add-card" method="POST" class="card-form" id="addCardForm" novalidate>
+          <div class="form-group">
+            <input type="text" name="question" placeholder="Enter question" 
+                  required minlength="3" maxlength="500"
+                  value="<%= formData && formData.question ? formData.question : '' %>">
+            <div class="error-message" id="questionError"></div>
+          </div>
+          
+          <div class="form-group">
+            <input type="text" name="answer" placeholder="Enter answer" 
+                  required minlength="3" maxlength="500"
+                  value="<%= formData && formData.answer ? formData.answer : '' %>">
+            <div class="error-message" id="answerError"></div>
+          </div>
+          
+          <button type="submit" class="btn">Add Card</button>
         </form>
-      </div>
+        <a href="/" class="btn back">Back to Flashcards</a>
+
+      <% } else if (mode === 'edit' && cardToEdit) { %>
+        <h2>Edit Flashcard</h2>
+        <% if (error) { %>
+          <div class="error-message"><%= error %></div>
+        <% } %>
+        <form action="/edit-card/<%= cardToEdit.id %>" method="POST" class="card-form">
+          <input type="text" name="question" value="<%= cardToEdit.question %>" required>
+          <input type="text" name="answer" value="<%= cardToEdit.answer %>" required>
+          <button type="submit" class="btn">Update Card</button>
+        </form>
+        <a href="/" class="btn back">Back to Flashcards</a>
+
+      <% } else { %>
+        <% if (card) { %>
+          <div class="card-container">
+            <div class="card" id="flashcard">
+              <div class="inner-card">
+                <div class="front"><%= card.question %></div>
+                <div class="back"><%= card.answer %></div>
+              </div>
+            </div>
+          </div>
+        <% } else { %>
+          <p>No flashcards found.</p>
+        <% } %>
+
+        <% if (card) { %>
+          <div class="controls-container">
+            <div class="navigation">
+              <form action="/" method="GET" class="nav-form">
+                <input type="hidden" name="index" value="<%= index > 0 ? index - 1 : 0 %>">
+                <input type="hidden" name="flipped" value="false">
+                <button type="submit" class="circle-btn">⬅️</button>
+              </form>
+              
+              <span class="counter"><%= index + 1 %> / <%= flashcards.length %></span>
+              
+              <form action="/" method="GET" class="nav-form">
+                <input type="hidden" name="index" value="<%= index < flashcards.length - 1 ? index + 1 : index %>">
+                <input type="hidden" name="flipped" value="false">
+                <button type="submit" class="circle-btn">➡️</button>
+              </form>
+            </div>
+
+            <div class="actions">
+              <a href="/edit-card/<%= card.id %>" class="edit">✎ Edit  </a>
+              <form action="/delete-card/<%= card.id %>" method="POST" onsubmit="return confirm('Delete this card?')">
+                <button type="submit" class="delete">🗑️Delete</button>
+              </form>
+            </div>
+          </div>
+        <% } %>
+
+        <div class="add-new">
+          <a href="/add-card" class="btn add">➕Add New Flashcard</a>
+        </div>
+      <% } %>
     </div>
   </main>
-
+  <%- include('partials/footer') %>
+  <script src="/script.js"></script>
 </body>
 </html>
-
-
-
-

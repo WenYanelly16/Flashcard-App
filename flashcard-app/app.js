@@ -2,42 +2,45 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import flashcardRoutes from './routes/flashcardRoutes.js';
-import { getAllCards, createCard } from './models/cardModel.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// Configuration
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
 
-app.use('/api', flashcardRoutes);
-
-// ✅ Route to render EJS page and pass flashcards
-app.get('/', async (req, res) => {
-  try {
-    const flashcards = await getAllCards();
-    res.render('cards', { flashcards }); // <-- pass the variable here
-  } catch (err) {
-    res.status(500).send('Failed to load flashcards');
-  }
+// Middleware to ensure consistent variables
+app.use((req, res, next) => {
+  res.locals.defaultRenderVars = {
+    mode: 'view',
+    currentIndex: 0,
+    isFlipped: false,
+    cardToEdit: null,
+    error: null
+  };
+  next();
 });
 
-// ✅ Form submit to add new flashcard
-app.post('/add-card', async (req, res) => {
-  const { question, answer } = req.body;
-  try {
-    await createCard(question, answer);
-    res.redirect('/');
-  } catch (err) {
-    res.status(500).send('Failed to add flashcard');
-  }
+// Routes
+app.use('/', flashcardRoutes);
+
+// Error handling
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).render('cards', {
+    ...res.locals.defaultRenderVars,
+    flashcards: [],
+    error: 'Something went wrong!'
+  });
 });
 
-app.listen(3000, () => {
-  console.log('Server running on http://localhost:3000');
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
