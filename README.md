@@ -105,7 +105,6 @@ flashcard-app/
 - Input sanitization (trimming whitespace)
 
 ## Presentation Link
-
-
+Flashcard App- Presentation Link
 ## Creators
 Irish Bigonia & Wendy Alfaro
